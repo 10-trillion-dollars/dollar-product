@@ -42,20 +42,17 @@ public class Product extends TimeStamped {
     private String photo;
     @Column
     private boolean state;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User user;
-
+    @Column
+    private Long userId;
     @Builder
     public Product(String name, Long price, String description, Long stock, String photo,
-        User user) {
+        Long userId) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.stock = stock;
         this.photo = photo;
-        this.user = user;
+        this.userId = userId;
         this.state = true;
     }
 

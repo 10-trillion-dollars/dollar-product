@@ -14,13 +14,13 @@ public class ProductDetailResponse {
     private String photo;
     private String adminname;
 
-    public ProductDetailResponse(Product product) {
+    public ProductDetailResponse(Product product, String username) {
         this.id = product.getId();
         this.name = product.getName();
         this.price = product.getPrice();
         this.description = product.getDescription();
         this.stock = product.getStock();
         this.photo = product.getPhoto();
-        this.adminname = product.getUser().getUsername();
+        this.adminname = username;
     }
 }

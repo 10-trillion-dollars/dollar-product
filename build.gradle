@@ -16,8 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation files("share-0.0.3.jar")
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // JWT
     compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'

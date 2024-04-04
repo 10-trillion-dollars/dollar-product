@@ -11,8 +11,8 @@ import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.entity.Product;
 import org.example.dollarproduct.product.repository.ProductRepository;
 import org.example.dollarproduct.user.FeignUserClient;
-import org.example.dollarproduct.user.entity.User;
-import org.example.dollarproduct.user.entity.UserRoleEnum;
+import org.example.share.config.global.entity.user.User;
+import org.example.share.config.global.entity.user.UserRoleEnum;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +39,8 @@ public class ProductService {
     }
 
     public List<ProductResponse> getAllProductsBySearch(String search, Pageable pageable) {
-        Page<Product> productPage = productRepository.findByNameContainingIgnoreCaseAndStateTrue(search, pageable);
+        Page<Product> productPage = productRepository.findByNameContainingIgnoreCaseAndStateTrue(
+            search, pageable);
         return getPageResponse(productPage);
     }
 
@@ -59,7 +60,8 @@ public class ProductService {
     }
 
     public List<ProductResponse> getAdminProducts(User user, Pageable pageable) {
-        Page<Product> productPage = productRepository.findAllByUserIdAndStateTrue(user.getId(), pageable);
+        Page<Product> productPage = productRepository.findAllByUserIdAndStateTrue(user.getId(),
+            pageable);
         return getPageResponse(productPage);
     }
 
@@ -100,7 +102,7 @@ public class ProductService {
     }
 
     private void checkProductStateIsFalse(Product product) {
-        if (!product.isState()){
+        if (!product.isState()) {
             throw new IllegalArgumentException("해당 상품은 삭제되었습니다.");
         }
     }

@@ -3,12 +3,12 @@ package org.example.dollarproduct.product.controller;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
-import org.example.dollarproduct.global.security.UserDetailsImpl;
 import org.example.dollarproduct.product.dto.request.ProductRequest;
 import org.example.dollarproduct.product.dto.request.ProductUpdateRequest;
 import org.example.dollarproduct.product.dto.request.StockUpdateRequest;
 import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.service.ProductService;
+import org.example.share.config.global.security.UserDetailsImpl;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

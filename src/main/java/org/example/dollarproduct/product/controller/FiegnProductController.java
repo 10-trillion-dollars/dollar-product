@@ -1,7 +1,6 @@
 package org.example.dollarproduct.product.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dollarproduct.product.dto.response.FeignProductResponse;
 import org.example.dollarproduct.product.entity.Product;
 import org.example.dollarproduct.product.service.ProductService;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;

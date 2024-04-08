@@ -51,4 +51,17 @@ jobs:
       # 5. Docker Hub 이미지 푸시
       - name: docker Hub push
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/product
-        
+
+        #CD
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            docker compose down
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/product
+            docker compose up --detach

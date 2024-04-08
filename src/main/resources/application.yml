@@ -14,7 +14,13 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: ${elasticcache.endpoint}
+      port: 6379
+        
 jwt:
   key: ${jwt.secret.key}
+  
 server:
   port: 8083

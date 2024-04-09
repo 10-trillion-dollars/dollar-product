@@ -28,7 +28,9 @@ jobs:
           spring.datasource.url: ${{ secrets.RDS_HOST }}
           spring.datasource.username: ${{ secrets.RDS_USERNAME }}
           spring.datasource.password: ${{ secrets.RDS_PASSWORD }}
+          spring.data.redis.host: ${{ secrets.REDIS_HOST }}
           jwt.key: ${{ secrets.JWT_KEY }}
+        
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -49,4 +51,17 @@ jobs:
       # 5. Docker Hub 이미지 푸시
       - name: docker Hub push
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/product
-        
+
+        #CD
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            docker compose down
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/product
+            docker compose up --detach

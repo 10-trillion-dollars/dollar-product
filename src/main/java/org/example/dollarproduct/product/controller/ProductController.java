@@ -1,10 +1,13 @@
 package org.example.dollarproduct.product.controller;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.dollarproduct.product.dto.response.ProductDetailResponse;
 import org.example.dollarproduct.product.dto.response.ProductResponse;
+import org.example.dollarproduct.product.service.ProductCacheService;
 import org.example.dollarproduct.product.service.ProductService;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.PageRequest;
@@ -18,10 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/products")
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductCacheService productCacheService;
+
 
     @GetMapping
     public List<ProductResponse> getAllProducts(
@@ -29,7 +35,8 @@ public class ProductController {
         @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return productService.getAllProducts(pageable);
+        //return productService.getAllProducts(pageable);
+        return productCacheService.getAllProducts(pageable);
     }
 
     @GetMapping("/{productId}")
@@ -50,5 +57,9 @@ public class ProductController {
         return productService.getAllProductsBySearch(search, pageable);
     }
 
+    @GetMapping("{productId}/image")
+    public ResponseEntity<byte[]> getProductImage(@PathVariable Long productId) throws IOException {
+        return productService.getProductImage(productId);
+    }
 
 }

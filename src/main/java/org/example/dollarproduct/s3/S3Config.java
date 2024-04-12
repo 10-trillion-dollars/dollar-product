@@ -10,19 +10,22 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
 public class S3Config {
+
     @Value("${aws.access.key}")
-    private String accessKey ;
+    private String accessKey;
 
     @Value("${aws.secret.key}")
-    private String secretKey ;
-@Bean
-    public S3Client s3Client(){
+    private String secretKey;
+
+    @Bean
+    public S3Client s3Client() {
         Region region = Region.AP_NORTHEAST_2;
-    AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-    StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
-    return S3Client.builder().credentialsProvider(credentialsProvider)
-                .region(region)
-                .build();
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(
+            credentials);
+        return S3Client.builder().credentialsProvider(credentialsProvider)
+            .region(region)
+            .build();
     }
 
 }

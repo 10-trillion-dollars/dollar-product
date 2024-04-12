@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dollarproduct.product.dto.request.ProductRequest;
 import org.example.dollarproduct.product.dto.request.ProductUpdateRequest;
 import org.example.dollarproduct.product.dto.request.StockUpdateRequest;
+import org.example.dollarproduct.product.dto.response.ProductAdminResponse;
 import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.service.ProductService;
 import org.example.share.config.global.security.UserDetailsImpl;
@@ -47,18 +48,15 @@ public class ProductAdminController {
     }
 
     @GetMapping
-    public List<ProductResponse> getAdminProducts(
+    public List<ProductAdminResponse> getAdminProducts(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-
         Pageable pageable = PageRequest.of(page, size);
-
+        //본래의 get method를 관리자 전용으로
         return productService.getAdminProducts(userDetails.getUser(), pageable);
-
     }
-
     @PutMapping("/{productId}")
     public ResponseEntity<String> updateAdminProduct(
         @PathVariable Long productId,

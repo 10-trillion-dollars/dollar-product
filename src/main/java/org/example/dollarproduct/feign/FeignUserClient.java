@@ -1,4 +1,4 @@
-package org.example.dollarproduct.user;
+package org.example.dollarproduct.feign;
 
 import org.example.share.config.global.entity.user.User;
 import org.springframework.cloud.openfeign.FeignClient;

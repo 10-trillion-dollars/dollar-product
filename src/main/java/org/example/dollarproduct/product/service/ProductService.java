@@ -5,15 +5,19 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.example.dollarproduct.entity.OrderDetail;
+import org.example.dollarproduct.feign.FeignOrderClient;
 import org.example.dollarproduct.product.dto.request.ProductRequest;
 import org.example.dollarproduct.product.dto.request.ProductUpdateRequest;
 import org.example.dollarproduct.product.dto.request.StockUpdateRequest;
+import org.example.dollarproduct.product.dto.response.OrderDetailAdminResponse;
+import org.example.dollarproduct.product.dto.response.ProductAdminResponse;
 import org.example.dollarproduct.product.dto.response.ProductDetailResponse;
 import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.entity.Product;
 import org.example.dollarproduct.product.repository.ProductRepository;
 import org.example.dollarproduct.s3.S3Service;
-import org.example.dollarproduct.user.FeignUserClient;
+import org.example.dollarproduct.feign.FeignUserClient;
 import org.example.share.config.global.entity.user.User;
 import org.example.share.config.global.entity.user.UserRoleEnum;
 import org.example.share.config.global.exception.AccessDeniedException;
@@ -22,7 +26,6 @@ import org.example.share.config.global.exception.UnauthorizedAccessException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +38,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final FeignUserClient feignUserClient;
     private final S3Service s3Service;
+    private final FeignOrderClient feignOrderClient;
 
     @Value("${product.bucket.name}")
     String bucketName;
@@ -75,9 +79,9 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public List<ProductResponse> getAdminProducts(User user, Pageable pageable) {
+    public List<ProductAdminResponse> getAdminProducts(User user, Pageable pageable) {
         Page<Product> productPage = productRepository.findAllByUserIdAndStateTrue(user.getId(), pageable);
-        return getPageResponse(productPage);
+        return getPageResponse2(productPage);
     }
 
     @Transactional
@@ -144,25 +148,36 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    private List<ProductAdminResponse> getPageResponse2(Page<Product> productPage) {
+        return productPage.getContent().stream()
+            .map(product -> {
+                List<OrderDetail> orderDetails = feignOrderClient.findOrderDetailsByProductId(product.getId());
+                List<OrderDetailAdminResponse> orderDetailResponseDtos = orderDetails.stream()
+                    .map(OrderDetailAdminResponse::new)
+                    .collect(Collectors.toList());
+                return new ProductAdminResponse(product, orderDetailResponseDtos);
+            })
+            .collect(Collectors.toList());
+    }
+
     public void uploadProductImage(Long productId, MultipartFile file) throws IOException {
         String imageKey = UUID.randomUUID().toString();
+        String format = "product-images/%s/%s".formatted(productId,
+            imageKey)+".PNG";
         s3Service.putObject(
-            bucketName, "product-images/%s/%s".formatted(productId,
-                imageKey),
-            file.getBytes());
+            bucketName,format,
+            file);
+        String url = "https://"+bucketName+".s3"+".ap-northeast-2.amazonaws.com/"+format;
         Product product = getProduct(productId);
-        product.updateImageKey(imageKey);
+        product.updateImageUrl(url);
         productRepository.save(product);
     }
 
-    public ResponseEntity<byte[]> getProductImage(Long productId) {
+    public String getProductImage(Long productId) {
         try {
-            String ImageKey = "product-images/1/"+getProduct(productId).getImageKey();
-            return s3Service.getImage(bucketName,ImageKey);
+            return getProduct(productId).getImageUrl();
         } catch (NoSuchKeyException e) {
             throw new NotFoundException("요청한 상품 이미지가 S3 버킷에 존재하지 않습니다. 이미지 키를 확인해주세요.");
-        } catch (IOException e) {
-            throw new RuntimeException("상품 이미지 조회 중 오류가 발생했습니다.", e);
         }
 
     }

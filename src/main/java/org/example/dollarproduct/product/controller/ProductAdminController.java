@@ -3,12 +3,10 @@ package org.example.dollarproduct.product.controller;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-
 import org.example.dollarproduct.product.dto.request.ProductRequest;
 import org.example.dollarproduct.product.dto.request.ProductUpdateRequest;
 import org.example.dollarproduct.product.dto.request.StockUpdateRequest;
 import org.example.dollarproduct.product.dto.response.ProductAdminResponse;
-import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.service.ProductService;
 import org.example.share.config.global.security.UserDetailsImpl;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
@@ -57,6 +55,7 @@ public class ProductAdminController {
         //본래의 get method를 관리자 전용으로
         return productService.getAdminProducts(userDetails.getUser(), pageable);
     }
+
     @PutMapping("/{productId}")
     public ResponseEntity<String> updateAdminProduct(
         @PathVariable Long productId,
@@ -95,10 +94,12 @@ public class ProductAdminController {
         return ResponseEntity.status(200)
             .body("Product delete successfully");
     }
+
     @Secured("ROLE_SELLER")
     @PostMapping("{productId}/image")
-    public void uploadProductImage(@PathVariable Long productId, @RequestParam("file") MultipartFile file) throws IOException {
-        productService.uploadProductImage(productId,file);
+    public void uploadProductImage(@PathVariable Long productId,
+        @RequestParam("file") MultipartFile file) throws IOException {
+        productService.uploadProductImage(productId, file);
     }
 
 }

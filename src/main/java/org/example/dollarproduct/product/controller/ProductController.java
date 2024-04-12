@@ -42,7 +42,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDetailResponse> getProductDetail(
         @PathVariable Long productId
-    ) throws NotFoundException {
+    ) {
         return ResponseEntity.status(200)
             .body(productService.getProductDetail(productId));
     }
@@ -58,7 +58,7 @@ public class ProductController {
     }
 
     @GetMapping("{productId}/image")
-    public ResponseEntity<byte[]> getProductImage(@PathVariable Long productId) throws IOException {
+    public String getProductImage(@PathVariable Long productId){
         return productService.getProductImage(productId);
     }
 

@@ -6,6 +6,8 @@ import org.example.dollarproduct.product.service.ProductService;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,5 +20,10 @@ public class FiegnProductController {
     @GetMapping("/products/{productId}")
     public Product getProducts(@PathVariable Long productId) throws NotFoundException {
         return productService.getProduct(productId);
+    }
+
+    @PostMapping("/products")
+    void save(@RequestBody Product product){
+        productService.save(product);
     }
 }

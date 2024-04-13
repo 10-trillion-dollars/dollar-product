@@ -1,10 +1,12 @@
 package org.example.dollarproduct.product.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.example.dollarproduct.entity.Order;
 import org.example.dollarproduct.entity.OrderDetail;
 import org.example.dollarproduct.feign.FeignOrderClient;
 import org.example.dollarproduct.product.dto.request.ProductRequest;
@@ -152,9 +154,12 @@ public class ProductService {
         return productPage.getContent().stream()
             .map(product -> {
                 List<OrderDetail> orderDetails = feignOrderClient.findOrderDetailsByProductId(product.getId());
-                List<OrderDetailAdminResponse> orderDetailResponseDtos = orderDetails.stream()
-                    .map(OrderDetailAdminResponse::new)
-                    .collect(Collectors.toList());
+                List<OrderDetailAdminResponse> orderDetailResponseDtos = new ArrayList<>();
+                for(OrderDetail orderDetail:orderDetails){
+                    Order order = feignOrderClient.getById(orderDetail.getOrderId());
+                    orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetail,order));
+                }
+
                 return new ProductAdminResponse(product, orderDetailResponseDtos);
             })
             .collect(Collectors.toList());

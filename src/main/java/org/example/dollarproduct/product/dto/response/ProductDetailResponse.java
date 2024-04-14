@@ -11,7 +11,6 @@ public class ProductDetailResponse {
     private Long price;
     private String description;
     private Long stock;
-    private String photo;
     private String adminname;
 
     public ProductDetailResponse(Product product, String username) {
@@ -20,7 +19,6 @@ public class ProductDetailResponse {
         this.price = product.getPrice();
         this.description = product.getDescription();
         this.stock = product.getStock();
-        this.photo = product.getPhoto();
         this.adminname = username;
     }
 }

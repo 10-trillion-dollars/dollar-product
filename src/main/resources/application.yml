@@ -24,3 +24,14 @@ jwt:
   
 server:
   port: 8083
+aws:
+  access:
+    key: ${access.key.id}
+  secret:
+    key: ${aws.secret.key}
+product:
+  bucket:
+    name: ${product.bucket.name}
+
+
+

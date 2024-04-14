@@ -16,5 +16,4 @@ public class ProductRequest {
 
     private Long stock;
 
-    private String photo;
 }

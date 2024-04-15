@@ -19,7 +19,8 @@ import org.example.dollarproduct.global.TimeStamped;
 @Table(name = "orders")
 public class Order extends TimeStamped {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
 
@@ -34,17 +35,5 @@ public class Order extends TimeStamped {
 
     @Column
     private String KakaoTid;
-    public Order(Long userId,OrderState state,Long addressId){
-        this.userId = userId;
-        this.state = state;
-        this.addressId = addressId;
-    }
-
-    public void changeState(OrderState state){
-        this.state = state;
-    }
-    public void updateTid(String tid){
-        this.KakaoTid=tid;
-    }
 
 }

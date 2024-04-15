@@ -4,7 +4,6 @@ package org.example.dollarproduct.product.service;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-
 import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -14,8 +13,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ProductCacheService {
+
     private final ProductService productService;
     private final RedissonClient redissonClient;
+
     public List<ProductResponse> getAllProducts(Pageable pageable) {
         String cacheKey = "products:page:" + pageable.getPageNumber();
         RBucket<List<ProductResponse>> bucket = redissonClient.getBucket(cacheKey);

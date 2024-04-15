@@ -1,15 +1,12 @@
 package org.example.dollarproduct.product.controller;
 
-import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.example.dollarproduct.product.dto.response.ProductDetailResponse;
 import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.service.ProductCacheService;
 import org.example.dollarproduct.product.service.ProductService;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -57,9 +54,9 @@ public class ProductController {
         return productService.getAllProductsBySearch(search, pageable);
     }
 
-    @GetMapping("{productId}/image")
-    public String getProductImage(@PathVariable Long productId){
-        return productService.getProductImage(productId);
-    }
+//    @GetMapping("{productId}/image")
+//    public String getProductImage(@PathVariable Long productId){
+//        return productService.getProductImage(productId);
+//    }
 
 }

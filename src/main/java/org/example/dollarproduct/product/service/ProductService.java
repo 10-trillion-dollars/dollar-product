@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dollarproduct.entity.Order;
 import org.example.dollarproduct.entity.OrderDetail;
 import org.example.dollarproduct.feign.FeignOrderClient;
+import org.example.dollarproduct.feign.FeignUserClient;
 import org.example.dollarproduct.product.dto.request.ProductRequest;
 import org.example.dollarproduct.product.dto.request.ProductUpdateRequest;
 import org.example.dollarproduct.product.dto.request.StockUpdateRequest;
@@ -19,7 +20,6 @@ import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.entity.Product;
 import org.example.dollarproduct.product.repository.ProductRepository;
 import org.example.dollarproduct.s3.S3Service;
-import org.example.dollarproduct.feign.FeignUserClient;
 import org.example.share.config.global.entity.user.User;
 import org.example.share.config.global.entity.user.UserRoleEnum;
 import org.example.share.config.global.exception.AccessDeniedException;
@@ -31,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 @Service
 @RequiredArgsConstructor
@@ -39,18 +38,20 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final FeignUserClient feignUserClient;
-    private final S3Service s3Service;
     private final FeignOrderClient feignOrderClient;
+    private final S3Service s3Service;
 
     @Value("${product.bucket.name}")
     String bucketName;
+
+    // 사용자 상품 관련 서비스
 
     public List<ProductResponse> getAllProducts(Pageable pageable) {
         Page<Product> productPage = productRepository.findAllByStateTrue(pageable);
         return getPageResponse(productPage);
     }
 
-    public ProductDetailResponse getProductDetail(Long productId){
+    public ProductDetailResponse getProductDetail(Long productId) {
         Product product = getProduct(productId);
         checkProductStateIsFalse(product);
         User user = feignUserClient.findById(product.getUserId());
@@ -62,6 +63,8 @@ public class ProductService {
             search, pageable);
         return getPageResponse(productPage);
     }
+
+    // 관리자 상품 관련 서비스
 
     public void createAdminProduct(ProductRequest productRequest, User user) {
         validateUserRole(user);
@@ -77,13 +80,10 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public void save(Product product) {
-        productRepository.save(product);
-    }
-
     public List<ProductAdminResponse> getAdminProducts(User user, Pageable pageable) {
-        Page<Product> productPage = productRepository.findAllByUserIdAndStateTrue(user.getId(), pageable);
-        return getPageResponse2(productPage);
+        Page<Product> productPage = productRepository.findAllByUserIdAndStateTrue(user.getId(),
+            pageable);
+        return getAdminPageResponse(productPage);
     }
 
     @Transactional
@@ -110,7 +110,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteAdminProduct(Long productId, User user){
+    public void deleteAdminProduct(Long productId, User user) {
         Product product = getProduct(productId);
 
         checkProductStateIsFalse(product);
@@ -119,6 +119,8 @@ public class ProductService {
 
         product.delete();
     }
+
+    // 검증 로직
 
     public void checkProductStateIsFalse(Product product) {
         if (!product.isState()) {
@@ -144,22 +146,27 @@ public class ProductService {
         }
     }
 
+    // 기타 메소드
+
     private List<ProductResponse> getPageResponse(Page<Product> productPage) {
         return productPage.getContent().stream()
             .map(ProductResponse::new)
             .collect(Collectors.toList());
     }
 
-    private List<ProductAdminResponse> getPageResponse2(Page<Product> productPage) {
+    /**
+     * todo : feignOrderClient.getById가 쿼리 N+1 문제를 발생 중 추후 해결
+     */
+    private List<ProductAdminResponse> getAdminPageResponse(Page<Product> productPage) {
         return productPage.getContent().stream()
             .map(product -> {
-                List<OrderDetail> orderDetails = feignOrderClient.findOrderDetailsByProductId(product.getId());
+                List<OrderDetail> orderDetails = feignOrderClient.findOrderDetailsByProductId(
+                    product.getId());
                 List<OrderDetailAdminResponse> orderDetailResponseDtos = new ArrayList<>();
-                for(OrderDetail orderDetail:orderDetails){
+                for (OrderDetail orderDetail : orderDetails) {
                     Order order = feignOrderClient.getById(orderDetail.getOrderId());
-                    orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetail,order));
+                    orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetail, order));
                 }
-
                 return new ProductAdminResponse(product, orderDetailResponseDtos);
             })
             .collect(Collectors.toList());
@@ -167,24 +174,17 @@ public class ProductService {
 
     public void uploadProductImage(Long productId, MultipartFile file) throws IOException {
         String imageKey = UUID.randomUUID().toString();
-        String format = "product-images/%s/%s".formatted(productId,
-            imageKey)+".PNG";
-        s3Service.putObject(
-            bucketName,format,
-            file);
-        String url = "https://"+bucketName+".s3"+".ap-northeast-2.amazonaws.com/"+format;
+        String format = "product-images/%s/%s".formatted(productId, imageKey) + ".PNG";
+        s3Service.putObject(bucketName, format, file);
+        String url = "https://" + bucketName + ".s3" + ".ap-northeast-2.amazonaws.com/" + format;
         Product product = getProduct(productId);
         product.updateImageUrl(url);
         productRepository.save(product);
     }
 
-    public String getProductImage(Long productId) {
-        try {
-            return getProduct(productId).getImageUrl();
-        } catch (NoSuchKeyException e) {
-            throw new NotFoundException("요청한 상품 이미지가 S3 버킷에 존재하지 않습니다. 이미지 키를 확인해주세요.");
-        }
-
+    // 외부 feign 호출 메소드
+    public void save(Product product) {
+        productRepository.save(product);
     }
 
 }

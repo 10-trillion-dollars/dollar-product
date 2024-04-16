@@ -54,9 +54,9 @@ public class ProductController {
         return productService.getAllProductsBySearch(search, pageable);
     }
 
-//    @GetMapping("{productId}/image")
-//    public String getProductImage(@PathVariable Long productId){
-//        return productService.getProductImage(productId);
-//    }
+    @GetMapping("{productId}/image")
+    public String getProductImage(@PathVariable Long productId){
+        return productService.getProductImage(productId);
+    }
 
 }

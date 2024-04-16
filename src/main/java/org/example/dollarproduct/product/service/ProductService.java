@@ -31,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 @Service
 @RequiredArgsConstructor
@@ -187,5 +188,13 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    public String getProductImage(Long productId) {
+        try {
+            return getProduct(productId).getImageUrl();
+        } catch (NoSuchKeyException e) {
+            throw new NotFoundException("요청한 상품 이미지가 S3 버킷에 존재하지 않습니다. 이미지 키를 확인해주세요.");
+        }
+
+    }
 }
 

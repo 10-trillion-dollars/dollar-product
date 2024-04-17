@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
 
-
     Page<Product> findAllByUserIdAndStateTrue(Long userId, Pageable pageable);
 
     Page<Product> findAllByStateTrue(Pageable pageable);

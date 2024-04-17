@@ -3,7 +3,6 @@ package org.example.dollarproduct.product.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.dollarproduct.product.entity.Product;
 import org.example.dollarproduct.product.service.ProductService;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,15 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/external")
 public class FiegnProductController {
+
     private final ProductService productService;
 
     @GetMapping("/products/{productId}")
-    public Product getProducts(@PathVariable Long productId) throws NotFoundException {
+    public Product getProducts(@PathVariable Long productId) {
         return productService.getProduct(productId);
     }
 
     @PostMapping("/products")
-    void save(@RequestBody Product product){
+    void save(@RequestBody Product product) {
         productService.save(product);
     }
 }

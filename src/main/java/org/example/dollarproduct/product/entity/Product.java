@@ -65,12 +65,8 @@ public class Product extends TimeStamped {
         this.state = false;
     }
 
-    public void updateStockAfterOrder(Long quantity) {
-        this.stock = stock - quantity;
-    }
-
-    public void updateImageUrl(String imageUrl){
-        this.imageUrl =imageUrl;
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
 

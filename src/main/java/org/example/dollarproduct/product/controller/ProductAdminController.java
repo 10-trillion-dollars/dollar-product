@@ -9,7 +9,6 @@ import org.example.dollarproduct.product.dto.request.StockUpdateRequest;
 import org.example.dollarproduct.product.dto.response.ProductAdminResponse;
 import org.example.dollarproduct.product.service.ProductService;
 import org.example.share.config.global.security.UserDetailsImpl;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/products")
+@Secured("ROLE_SELLER")
 public class ProductAdminController {
 
     private final ProductService productService;
@@ -61,7 +61,7 @@ public class ProductAdminController {
         @PathVariable Long productId,
         @RequestBody ProductUpdateRequest productRequest,
         @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) throws NotFoundException {
+    ) {
 
         productService.updateAdminProduct(productId, productRequest, userDetails.getUser());
 
@@ -74,7 +74,7 @@ public class ProductAdminController {
         @PathVariable Long productId,
         @RequestBody StockUpdateRequest stockupdateRequest,
         @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) throws NotFoundException {
+    ) {
 
         productService.updateAdminProductStock(productId, stockupdateRequest,
             userDetails.getUser());
@@ -87,7 +87,7 @@ public class ProductAdminController {
     public ResponseEntity<String> deleteAdminProduct(
         @PathVariable Long productId,
         @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) throws NotFoundException {
+    ) {
 
         productService.deleteAdminProduct(productId, userDetails.getUser());
 
@@ -95,11 +95,14 @@ public class ProductAdminController {
             .body("Product delete successfully");
     }
 
-    @Secured("ROLE_SELLER")
+
     @PostMapping("{productId}/image")
-    public void uploadProductImage(@PathVariable Long productId,
+    public ResponseEntity<String> uploadProductImage(@PathVariable Long productId,
         @RequestParam("file") MultipartFile file) throws IOException {
         productService.uploadProductImage(productId, file);
+
+        return ResponseEntity.status(200)
+            .body("Product Image update successfully");
     }
 
 }

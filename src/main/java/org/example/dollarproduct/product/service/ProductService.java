@@ -159,7 +159,6 @@ public class ProductService {
                     Order order = feignOrderClient.getById(orderDetail.getOrderId());
                     orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetail,order));
                 }
-
                 return new ProductAdminResponse(product, orderDetailResponseDtos);
             })
             .collect(Collectors.toList());

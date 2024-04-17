@@ -12,6 +12,7 @@ public class ProductDetailResponse {
     private String description;
     private Long stock;
     private String adminname;
+    private String imageUrl;
 
     public ProductDetailResponse(Product product, String username) {
         this.id = product.getId();
@@ -20,5 +21,6 @@ public class ProductDetailResponse {
         this.description = product.getDescription();
         this.stock = product.getStock();
         this.adminname = username;
+        this.imageUrl = product.getImageUrl();
     }
 }

@@ -13,8 +13,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface FeignUserClient {
 
     @GetMapping("/users/{userId}")
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, maxDelay = 5000)
-        , noRetryFor = {FeignClientException.class}
-    )
     User findById(@PathVariable Long userId);
 }

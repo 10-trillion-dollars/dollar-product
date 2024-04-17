@@ -22,18 +22,8 @@ public interface FeignOrderClient {
 
 
     @GetMapping("/{productId}/orderDetails")
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, maxDelay = 5000)
-        , noRetryFor = FeignClientException.class
-        , recover = "recoverFindOrderDetailsByProductId"
-    )
     List<OrderDetail> findOrderDetailsByProductId(@PathVariable Long productId);
 
-    @Recover
-    default List<OrderDetail> recoverFindOrderDetailsByProductId(FeignException e) {
-        Logger logger = LoggerFactory.getLogger(FeignOrderClient.class);
-        logger.error("All retries failed., error = {}", e.getMessage());
-        return null;
-    }
 
     @GetMapping("/orders/{orderId}")
     Order getById(@PathVariable Long orderId);

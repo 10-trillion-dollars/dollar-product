@@ -1,9 +1,6 @@
 name: Java CI with Gradle
-
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 jobs:
@@ -11,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
+    #CI
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -30,19 +27,19 @@ jobs:
           spring.datasource.password: ${{ secrets.RDS_PASSWORD }}
           spring.data.redis.host: ${{ secrets.REDIS_HOST }}
           jwt.key: ${{ secrets.JWT_KEY }}
-          aws.access.key: ${{ secrets.ACCESS_KEY_ID }}
-          aws.secret.key: ${{ secrets.AWS_SECRET_KEY }}
+          aws.access.key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws.secret.key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           product.bucket.name: ${{ secrets.PRODUCT_BUCKET_NAME }}
-        
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-        # Docker 이미지 빌드
+      # Docker 이미지 빌드
       - name: docker image build
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/product .
+        run: docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/product .
 
       # DockerHub 로그인
       - name: docker login
@@ -51,12 +48,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      # 5. Docker Hub 이미지 푸시
+      # Docker Hub 이미지 푸시
       - name: docker Hub push
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/product
 
-        #CD
-
+      #CD
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -65,6 +61,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-            docker compose down
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/product
-            docker compose up --detach
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/product
+            sudo docker run --platform linux/amd64 -d -p 8083:8083 ${{ secrets.DOCKERHUB_USERNAME }}/product
+            sudo docker image prune -f

@@ -28,7 +28,7 @@ jobs:
           spring.data.redis.host: ${{ secrets.REDIS_HOST }}
           jwt.key: ${{ secrets.JWT_KEY }}
           aws.access.key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws.secret.key: ${{ secrets.AWS_SECRET_KEY }}
+          aws.secret.key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           product.bucket.name: ${{ secrets.PRODUCT_BUCKET_NAME }}
 
       - name: Grant execute permission for gradlew

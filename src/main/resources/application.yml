@@ -33,8 +33,7 @@ product:
   bucket:
     name: ${product.bucket.name}
 
-elk:
-  server: ${elk.server}
+
 
 
 

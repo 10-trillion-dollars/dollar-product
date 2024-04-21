@@ -61,6 +61,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
+            sudo docker stop $(sudo docker ps -q --filter ancestor=jw059/product)
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/product
-            sudo docker run --platform linux/amd64 -d -p 8083:8083 ${{ secrets.DOCKERHUB_USERNAME }}/product
+            sudo docker run --platform linux/amd64 -d -e destination=${{ secrets.DESTINATION }} -p 8083:8083 ${{ secrets.DOCKERHUB_USERNAME }}/product
             sudo docker image prune -f

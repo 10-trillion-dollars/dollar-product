@@ -17,7 +17,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6380
+      port: 6379
 jwt:
   key: ${jwt.secret.key}
   
@@ -28,6 +28,7 @@ aws:
     key: ${access.key.id}
   secret:
     key: ${aws.secret.key}
+
 product:
   bucket:
     name: ${product.bucket.name}

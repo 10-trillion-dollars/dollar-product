@@ -10,6 +10,7 @@ import org.example.dollarproduct.entity.OrderDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -23,12 +24,10 @@ public interface FeignOrderClient {
 
     @GetMapping("/{productId}/orderDetails")
     List<OrderDetail> findOrderDetailsByProductId(@PathVariable Long productId);
-
-
     @GetMapping("/orders/{orderId}")
     Order getById(@PathVariable Long orderId);
-
-
+    @GetMapping("/notify-stock-update/{productId}/{productName}")
+    ResponseEntity<String> notifyStockUpdate(@PathVariable Long productId, @PathVariable String productName);
 }
 
 

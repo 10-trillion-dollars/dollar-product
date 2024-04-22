@@ -16,8 +16,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "dollar-order", url = "https://order.10-trillon-dollars.com/external")
-//@FeignClient(name = "dollar-order", url = "http://localhost:8084/external")
+//@FeignClient(name = "dollar-order", url = "https://order.10-trillon-dollars.com/external")
+@FeignClient(name = "dollar-order", url = "http://localhost:8084/external")
 public interface FeignOrderClient {
 
 

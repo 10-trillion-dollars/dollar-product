@@ -164,9 +164,13 @@ public class ProductService {
                 List<OrderDetail> orderDetails = feignOrderClient.findOrderDetailsByProductId(
                     product.getId());
                 List<OrderDetailAdminResponse> orderDetailResponseDtos = new ArrayList<>();
-                for (OrderDetail orderDetail : orderDetails) {
-                    Order order = feignOrderClient.getById(orderDetail.getOrderId());
-                    orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetail, order));
+                List<Long> orderIdList = new ArrayList<>();
+                for(OrderDetail orderDetail : orderDetails){
+                    orderIdList.add(orderDetail.getOrderId());
+                }
+                List<Order> orderList = feignOrderClient.getAllById(orderIdList);
+                for (int i=0; i< orderList.size(); i++) {
+                    orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetails.get(i), orderList.get(i)));
                 }
                 return new ProductAdminResponse(product, orderDetailResponseDtos);
             })

@@ -1,5 +1,7 @@
 import org.example.dollarproduct.entity.Order;
 import org.example.dollarproduct.entity.OrderDetail;
+import org.example.share.config.global.entity.user.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -12,11 +14,22 @@ import java.util.List;
 public class ProductTest {
 
     @Test
-    public void test() {
+    @DisplayName("Order 통신 테스트")
+    public void OrderFeigntest() {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Order> response = restTemplate
                 .getForEntity("http://localhost:8084/external/orders/1", Order.class);
       Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       System.out.println(response.getBody());
+    }
+
+    @Test
+    @DisplayName("User 통신 테스트")
+    public void UserFeigntest() {
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<User> response = restTemplate
+                .getForEntity("http://localhost:8082/external/users/1", User.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        System.out.println(response.getBody());
     }
 }

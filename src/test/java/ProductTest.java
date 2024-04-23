@@ -13,6 +13,8 @@ import java.util.List;
 
 public class ProductTest {
 
+    //실행하기 전에 FeignClient interface에 url이 local인지 확인
+    //각 서버가 실행이 되고 있는지 확인
     @Test
     @DisplayName("Order 통신 테스트")
     public void OrderFeigntest() {

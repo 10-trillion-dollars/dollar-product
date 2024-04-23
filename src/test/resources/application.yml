@@ -2,10 +2,10 @@ spring:
   application:
     name: dollar-product
   datasource:
-    url: ${rds.host}
-    username: ${rds.username}
-    password: ${rds.password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:mem:db
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: update

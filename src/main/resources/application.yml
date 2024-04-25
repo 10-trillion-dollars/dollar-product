@@ -18,7 +18,11 @@ spring:
     redis:
       host: ${redis.host}
       port: 6379
-        
+
+  cloud:
+    loadbalancer:
+      clients:
+
 jwt:
   key: ${jwt.secret.key}
   
@@ -33,7 +37,9 @@ product:
   bucket:
     name: ${product.bucket.name}
 
-
+loadbalancer:
+  user: ${load.user}
+  order: ${load.order}
 
 
 

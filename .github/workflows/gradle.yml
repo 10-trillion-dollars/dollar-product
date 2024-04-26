@@ -30,6 +30,8 @@ jobs:
           aws.access.key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws.secret.key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           product.bucket.name: ${{ secrets.PRODUCT_BUCKET_NAME }}
+          loadbalancer.user: ${{ secrets.LOADBALANCER_USER }}
+          loadbalancer.order: ${{ secrets.LOADBALANCER_ORDER }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -61,6 +63,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
+            sudo docker stop $(sudo docker ps -q --filter ancestor=jw059/product)
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/product
-            sudo docker run --platform linux/amd64 -d -p 8083:8083 ${{ secrets.DOCKERHUB_USERNAME }}/product
+            sudo docker run --platform linux/amd64 -d -e destination=${{ secrets.DESTINATION }} -p 8083:8083 ${{ secrets.DOCKERHUB_USERNAME }}/product
             sudo docker image prune -f

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "dollar-order", url = "https://order.10-trillon-dollars.shop/external")
+@FeignClient(name = "dollar-order", url = "${loadbalancer.order}/external")
 //@FeignClient(name = "dollar-order", url = "http://localhost:8084/external")
 public interface FeignOrderClient {
 

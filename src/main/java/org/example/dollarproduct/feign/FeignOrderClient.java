@@ -32,7 +32,8 @@ public interface FeignOrderClient {
     List<OrderDetail> findOrderDetailsByProductId(@PathVariable Long productId);
     @GetMapping("/notify-stock-update/{productId}/{productName}")
     ResponseEntity<String> notifyStockUpdate(@PathVariable Long productId, @PathVariable String productName);
-    List<OrderDetail> XfindOrderDetailsByProductId(@PathVariable Long productId);
+//    @GetMapping("/{productId}/orderDetails")
+//    List<OrderDetail> XfindOrderDetailsByProductId(@PathVariable Long productId);
     @GetMapping("/orders/{orderId}")
     Order getById(@PathVariable Long orderId);
 

@@ -33,7 +33,9 @@ product:
   bucket:
     name: ${product.bucket.name}
 
-
+loadbalancer:
+  user: ${load.user}
+  order: ${load.order}
 
 
 

@@ -11,6 +11,4 @@ public class ProductUpdateRequest {
     private Long price;
 
     private String description;
-
-    private String photo;
 }

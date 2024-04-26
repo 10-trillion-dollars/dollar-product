@@ -8,8 +8,10 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "dollar-user", url = "${loadbalancer.user}/external")
-//@FeignClient(name = "dollar-user", url = "http://localhost:8082/external")
+
+//@FeignClient(name = "dollar-user", url = "${loadbalancer.user}/external")
+@FeignClient(name = "dollar-user", url = "http://localhost:8082/external")
+
 public interface FeignUserClient {
 
     @GetMapping("/users/{userId}")

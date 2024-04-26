@@ -2,7 +2,9 @@ package org.example.dollarproduct.product.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +43,6 @@ public class ProductService {
     private final FeignUserClient feignUserClient;
     private final FeignOrderClient feignOrderClient;
     private final S3Service s3Service;
-
     @Value("${product.bucket.name}")
     String bucketName;
 
@@ -98,18 +99,32 @@ public class ProductService {
         product.update(productRequest);
     }
 
-    @Transactional
-    public void updateAdminProductStock(Long productId, StockUpdateRequest stockupdateRequest,
-        User user) {
-        Product product = getProduct(productId);
-
-        checkProductStateIsFalse(product);
-
-        validateProductOwner(user, product);
-
-        product.updateStock(stockupdateRequest);
-    }
-
+//    @Transactional
+//    public void updateAdminProductStock(Long productId, StockUpdateRequest stockupdateRequest,
+//        User user) {
+//        Product product = getProduct(productId);
+//
+//        checkProductStateIsFalse(product);
+//
+//        validateProductOwner(user, product);
+//
+//        product.updateStock(stockupdateRequest);
+//    }
+@Transactional
+public void updateAdminProductStock(Long productId, StockUpdateRequest stockupdateRequest,
+    User user)
+    throws NotFoundException {
+    //상품 조회
+    Product product = getProduct(productId);
+    //상품 상태 검증 (삭제 상태인지)
+    checkProductStateIsFalse(product);
+    //상품 소유 권한 검증
+    validateProductOwner(user, product);
+    //상품 수량 업데이트
+    product.updateStock(stockupdateRequest);
+    String productName = getProductDetail(productId).getName();
+    feignOrderClient.notifyStockUpdate(productId,productName);
+}
     @Transactional
     public void deleteAdminProduct(Long productId, User user) {
         Product product = getProduct(productId);
@@ -159,19 +174,75 @@ public class ProductService {
      * todo : feignOrderClient.getById가 쿼리 N+1 문제를 발생 중 추후 해결
      */
     private List<ProductAdminResponse> getAdminPageResponse(Page<Product> productPage) {
-        return productPage.getContent().stream()
-            .map(product -> {
-                List<OrderDetail> orderDetails = feignOrderClient.findOrderDetailsByProductId(
-                    product.getId());
-                List<OrderDetailAdminResponse> orderDetailResponseDtos = new ArrayList<>();
-                for (OrderDetail orderDetail : orderDetails) {
-                    Order order = feignOrderClient.getById(orderDetail.getOrderId());
-                    orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetail, order));
-                }
-                return new ProductAdminResponse(product, orderDetailResponseDtos);
-            })
-            .collect(Collectors.toList());
+        // product를 1페이지에 나타낼 수 있는 만큼 가져오기
+        List<Product> productList = productPage.getContent();
+
+        // 해당 페이지의 product들의 모든 ID를 productIdList에 담기
+        List<Long> productIdList = new ArrayList<>();
+        for (Product product : productList) {
+            productIdList.add(product.getId());
+        }
+
+        // productIdList 안에 담긴 상품들 중 주문된 orderDetail을 orderDetailList에 담기
+        List<OrderDetail> orderDetailList = feignOrderClient.findOrderDetailsByProductId(
+            productIdList);
+
+        // orderDetail의 orderId를 orderIdList에 담기
+        Map<Long, Long> orderIdMap = new HashMap<>();
+        for (OrderDetail orderDetail : orderDetailList) {
+            orderIdMap.put(orderDetail.getOrderId(), orderDetail.getOrderId());
+        }
+        List<Long> orderIdList = new ArrayList<>();
+        for(Map.Entry<Long, Long> entry : orderIdMap.entrySet()){
+            orderIdList.add(entry.getKey());
+        }
+
+        // orderIdList 안에 담긴 orderId로 orderList에 담기
+        Map<Long, Order> orderList = feignOrderClient.getAllById(orderIdList);
+
+        // orderDetailList와 orderList에서 각각 한개씩 꺼내서 OrderDetailAdminResponse에 담기
+        List<OrderDetailAdminResponse> orderDetailResponseDtos = new ArrayList<>();
+
+        for (OrderDetail orderDetail : orderDetailList) {
+            orderDetailResponseDtos.add(
+                new OrderDetailAdminResponse(orderDetail, orderList.get(orderDetail.getOrderId())));
+        }
+
+        Map<Long, List<OrderDetailAdminResponse>> orderDetailResponseMap = new HashMap<>();
+
+        for(OrderDetailAdminResponse orderDetail : orderDetailResponseDtos){
+            Long productId = orderDetail.getProductId();
+            if(!orderDetailResponseMap.containsKey(productId)){
+                orderDetailResponseMap.put(productId, new ArrayList<>());
+            }
+            orderDetailResponseMap.get(productId).add(orderDetail);
+        }
+
+        List<ProductAdminResponse> productAdminResponseList = new ArrayList<>();
+
+        for (Product product : productList){
+            List<OrderDetailAdminResponse> orderDetailsForProduct = orderDetailResponseMap.get(product.getId());
+            productAdminResponseList.add(
+                new ProductAdminResponse(product, orderDetailsForProduct));
+        }
+
+        return productAdminResponseList;
     }
+
+//    private List<ProductAdminResponse> getAdminPageResponse(Page<Product> productPage) {
+//        return productPage.getContent().stream()
+//            .map(product -> {
+//                List<OrderDetail> orderDetails = feignOrderClient.XfindOrderDetailsByProductId(
+//                    product.getId());
+//                List<OrderDetailAdminResponse> orderDetailResponseDtos = new ArrayList<>();
+//                for (OrderDetail orderDetail : orderDetails) {
+//                    Order order = feignOrderClient.getById(orderDetail.getOrderId());
+//                    orderDetailResponseDtos.add(new OrderDetailAdminResponse(orderDetail, order));
+//                }
+//                return new ProductAdminResponse(product, orderDetailResponseDtos);
+//            })
+//            .collect(Collectors.toList());
+//    }
 
     public void uploadProductImage(Long productId, MultipartFile file) throws IOException {
         String imageKey = UUID.randomUUID().toString();

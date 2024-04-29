@@ -1,5 +1,6 @@
 package org.example.dollarproduct.product.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.dollarproduct.product.entity.Product;
 import org.example.dollarproduct.product.service.ProductService;
@@ -25,5 +26,15 @@ public class FiegnProductController {
     @PostMapping("/products")
     void save(@RequestBody Product product) {
         productService.save(product);
+    }
+
+    @PostMapping("/products/productIdList")
+    List<Product> getProductList(@RequestBody List<Long> productIdList) {
+        return productService.getAllProductsByProductIdList(productIdList);
+    }
+
+    @PostMapping("/products/updateBulk")
+    void saveBulk(@RequestBody List<Product> productList) {
+        productService.UpdateBulk(productList);
     }
 }

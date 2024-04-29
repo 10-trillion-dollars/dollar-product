@@ -45,7 +45,6 @@ public class ProductService {
     private final FeignUserClient feignUserClient;
     private final FeignOrderClient feignOrderClient;
     private final S3Service s3Service;
-
     @Value("${product.bucket.name}")
     String bucketName;
 
@@ -102,18 +101,32 @@ public class ProductService {
         product.update(productRequest);
     }
 
-    @Transactional
-    public void updateAdminProductStock(Long productId, StockUpdateRequest stockupdateRequest,
-        User user) {
-        Product product = getProduct(productId);
-
-        checkProductStateIsFalse(product);
-
-        validateProductOwner(user, product);
-
-        product.updateStock(stockupdateRequest);
-    }
-
+//    @Transactional
+//    public void updateAdminProductStock(Long productId, StockUpdateRequest stockupdateRequest,
+//        User user) {
+//        Product product = getProduct(productId);
+//
+//        checkProductStateIsFalse(product);
+//
+//        validateProductOwner(user, product);
+//
+//        product.updateStock(stockupdateRequest);
+//    }
+@Transactional
+public void updateAdminProductStock(Long productId, StockUpdateRequest stockupdateRequest,
+    User user)
+    throws NotFoundException {
+    //상품 조회
+    Product product = getProduct(productId);
+    //상품 상태 검증 (삭제 상태인지)
+    checkProductStateIsFalse(product);
+    //상품 소유 권한 검증
+    validateProductOwner(user, product);
+    //상품 수량 업데이트
+    product.updateStock(stockupdateRequest);
+    String productName = getProductDetail(productId).getName();
+    feignOrderClient.notifyStockUpdate(productId,productName);
+}
     @Transactional
     public void deleteAdminProduct(Long productId, User user) {
         Product product = getProduct(productId);

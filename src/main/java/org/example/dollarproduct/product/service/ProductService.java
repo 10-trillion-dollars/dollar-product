@@ -20,6 +20,7 @@ import org.example.dollarproduct.product.dto.response.ProductAdminResponse;
 import org.example.dollarproduct.product.dto.response.ProductDetailResponse;
 import org.example.dollarproduct.product.dto.response.ProductResponse;
 import org.example.dollarproduct.product.entity.Product;
+import org.example.dollarproduct.product.repository.ProductBulkRepository;
 import org.example.dollarproduct.product.repository.ProductRepository;
 import org.example.dollarproduct.s3.S3Service;
 import org.example.share.config.global.entity.user.User;
@@ -40,6 +41,7 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductBulkRepository productBulkRepository;
     private final FeignUserClient feignUserClient;
     private final FeignOrderClient feignOrderClient;
     private final S3Service s3Service;
@@ -180,7 +182,7 @@ public class ProductService {
             orderIdMap.put(orderDetail.getOrderId(), orderDetail.getOrderId());
         }
         List<Long> orderIdList = new ArrayList<>();
-        for(Map.Entry<Long, Long> entry : orderIdMap.entrySet()){
+        for (Map.Entry<Long, Long> entry : orderIdMap.entrySet()) {
             orderIdList.add(entry.getKey());
         }
 
@@ -197,9 +199,9 @@ public class ProductService {
 
         Map<Long, List<OrderDetailAdminResponse>> orderDetailResponseMap = new HashMap<>();
 
-        for(OrderDetailAdminResponse orderDetail : orderDetailResponseDtos){
+        for (OrderDetailAdminResponse orderDetail : orderDetailResponseDtos) {
             Long productId = orderDetail.getProductId();
-            if(!orderDetailResponseMap.containsKey(productId)){
+            if (!orderDetailResponseMap.containsKey(productId)) {
                 orderDetailResponseMap.put(productId, new ArrayList<>());
             }
             orderDetailResponseMap.get(productId).add(orderDetail);
@@ -207,8 +209,9 @@ public class ProductService {
 
         List<ProductAdminResponse> productAdminResponseList = new ArrayList<>();
 
-        for (Product product : productList){
-            List<OrderDetailAdminResponse> orderDetailsForProduct = orderDetailResponseMap.get(product.getId());
+        for (Product product : productList) {
+            List<OrderDetailAdminResponse> orderDetailsForProduct = orderDetailResponseMap.get(
+                product.getId());
             productAdminResponseList.add(
                 new ProductAdminResponse(product, orderDetailsForProduct));
         }
@@ -252,7 +255,21 @@ public class ProductService {
         } catch (NoSuchKeyException e) {
             throw new NotFoundException("요청한 상품 이미지가 S3 버킷에 존재하지 않습니다. 이미지 키를 확인해주세요.");
         }
+    }
 
+    public List<Product> getAllProductsByProductIdList(List<Long> productIdList) {
+        return productRepository.findAllByProductIdList(productIdList);
+    }
+
+    public void updateStockAfterOrder(Map<Long, Long> basket) {
+        for (Map.Entry<Long, Long> entry : basket.entrySet()) {
+            Long productId = entry.getKey();
+            Long quantity = entry.getValue();
+        }
+    }
+
+    public void UpdateBulk(List<Product> productList) {
+        productBulkRepository.UpdateBulk(productList);
     }
 }
 

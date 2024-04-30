@@ -25,14 +25,18 @@ public interface FeignOrderClient {
     Map<Long, Order> getAllById(@RequestBody List<Long> orderIdList);
 
     @GetMapping("/orderDetails")
-    Map<Long, List<OrderDetail>> findOrderDetailsByProductIds(@RequestParam("productIds") List<Long> productIds);
+    Map<Long, List<OrderDetail>> findOrderDetailsByProductIds(
+        @RequestParam("productIds") List<Long> productIds);
 
     // 쿼리 개선 전
     @GetMapping("/{productId}/orderDetails")
     List<OrderDetail> findOrderDetailsByProductId(@PathVariable Long productId);
+
     @GetMapping("/notify-stock-update/{productId}/{productName}")
-    ResponseEntity<String> notifyStockUpdate(@PathVariable Long productId, @PathVariable String productName);
-//    @GetMapping("/{productId}/orderDetails")
+    ResponseEntity<String> notifyStockUpdate(@PathVariable Long productId,
+        @PathVariable String productName);
+
+    //    @GetMapping("/{productId}/orderDetails")
 //    List<OrderDetail> XfindOrderDetailsByProductId(@PathVariable Long productId);
     @GetMapping("/orders/{orderId}")
     Order getById(@PathVariable Long orderId);
